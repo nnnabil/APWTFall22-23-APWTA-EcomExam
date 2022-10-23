@@ -7,6 +7,7 @@ use App\Http\Requests\StoreLoginRequest;
 use App\Http\Requests\UpdateLoginRequest;
 use Illuminate\Http\Request;
 use App\Models\Customer;
+use Illuminate\Support\Facades\Cookie;
 
 class LoginController extends Controller
 {
@@ -93,7 +94,11 @@ class LoginController extends Controller
                   ->where('password',$req->password)
                   ->first();
         if($c){
-            session()->put('user',$c->id);
+            session()->put('user',$c->phone);
+            if ($req->remember) {
+                setcookie('remember',$req->phone, time()+36000);
+                Cookie::queue('name',$c->phone,time()+60);
+            }
             return redirect()->route('products.mycart');
         }
         return redirect()->route('login');
